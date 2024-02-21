@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leaflet Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""/>
+   <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+ crossorigin=""></script>
+ <link rel="stylesheet" href="./css/style.css">
+ <link rel="stylesheet" href="./css/search.css">
+ <link rel="stylesheet" href="./css/overrides.css">
+ <link rel="stylesheet" href="./css/line-view.css">
+
+
+</head>
+<body>
+  <div class="ui">
+
+    <div class="search" id="search-div">
+      <div class="search-bar" id="search-bar">
+        <div class="search-icon">
+          <img src="./icon/search.svg" alt="">
+        </div>
+        <div class="search-input-div">
+          <input type="text" name=""  autocomplete="false" placeholder="Cherche un bus, ligne, arret, destination" class="search-input" id="search-input">
+        </div>
+      </div>
+      <div class="search-filter" id="search-filter">
+        <div class="filters" id="filters">
+          <select class="filter-type filter" id="filter-type">
+            <option value="bus">Bus</option>
+            <option value="routes">Lignes</option>
+            <option value="stops">Arrêts</option>
+          </select>
+          <input type="number" step="5" min="5" max="100" id="filter-distance" value="5">
+          <p title="Dépendament de la ou le cetre est !">km</p>
+        </div>
+      </div>
+      <div id="search-result" >
+        <div class="results">
+          
+          <div class="result" id="exemple-result">
+            <img src="./icon/map-pin.svg" alt="" class="result-icon" id="exemple-icon">
+            <div class="search-text" id="exemple-text">
+              <p class="result-name" id="exemple-name">
+                long nom pour bien test lolololol
+              </p>
+              <p class="result-desc" id="exemple-desc">
+                 rosay - vienne - condrieu
+              </p>
+            </div>
+
+            <div class="result-icons" id="exemple-infos">
+              <img src="./icon/bicycle.svg" alt="" class="bike-icon" id="exemple-bike" width="1px">
+              <img src="./icon/wheelchair.svg" alt="" class="chair-icon" id="exemple-chair">
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="back-button" hidden>
+      <div class="back-icon">
+        <img src="./icon/arrow-left.svg" alt="" >
+      </div>
+      <div class="back-menu-name">
+        Ligne de bus
+      </div>
+    </div>
+
+    <div class="line-view" hidden >
+      <div class="line-name">
+        Bus 12345
+      </div>
+
+      <div class="line-stops">
+        <div class="line-stop">
+          <div class="stop-icon-div">
+            <img src="./icon/line-start.svg" alt="stop-start" class="stop-icon">
+          </div>
+          
+          <div class="stop-name">
+            Collège ABCDEF
+          </div>
+          
+        </div>
+        <div class="line-stop">
+          <div class="stop-icon-div">
+            <img src="./icon/line-stop.svg" alt="stop-start" class="stop-icon">
+          </div>
+          
+          <div class="stop-name">
+            Blibliotheque de ...
+          </div>
+          
+        </div>
+        <div class="line-stop">
+          <div class="stop-icon-div">
+            <img src="./icon/line-end.svg" alt="stop-start" class="stop-icon">
+          </div>
+          
+          <div class="stop-name">
+            le belvédère
+          </div>
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  <div id="map"></div>
+
+  <script src="./script/map.js"></script>
+  <script src="./script/search.js"></script>
+</body>
+</html>

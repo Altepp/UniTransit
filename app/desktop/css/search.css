@@ -1,0 +1,120 @@
+.search {
+    width:100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar {
+    margin-top: 0px;
+    position: relative;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+    background-color: rgba(145, 145, 145, 0.26);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}   
+
+.search-icon {
+    margin-right: 5px;
+}   
+
+.search-icon img {
+    width: 35px;
+}   
+
+.search-input-div {
+}   
+
+.search-input {
+    width: 250px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}   
+
+.search-filter{
+    margin-top: 0px;
+    position: relative;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+}
+.filter-type {
+    margin-right: 10px;
+}
+
+.filter {
+    background-color: rgba(145, 145, 145, 0.26);
+
+}
+
+.filters {
+    background-color: rgba(138, 138, 138, 0.26);
+    backdrop-filter: blur(10px);
+    width: 330px;
+    height: 50px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+
+}
+.search-result {
+    margin-top: 0px;
+    position: relative;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+}
+
+.result {
+    display: flex;
+    align-items: center;
+
+}
+
+.results {
+
+    background-color: rgba(138, 138, 138, 0.26);
+    backdrop-filter: blur(10px);
+    width: 330px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.result-icon {
+    width: 35px;
+}
+
+p {
+    margin: 2px
+}
+.search-text{
+    margin: 0 auto;
+}
+.result-desc {
+    color: #383838;
+    font-size: 11px;
+}
+.result-icon {
+    margin-left: 0 auto;
+}
+.bike-icon, .chair-icon{
+    width: fit-content;
+    width: 16px;
+    
+}

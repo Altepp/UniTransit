@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="style/search.css">
+    <script src="script/search.js"></script>
+    <title>UniTransit</title>
+</head>
+
+<body>
+    <div class="ui">
+        <div class="no-pos">
+
+        </div>
+        <div class="search" id="search">
+            <input type="text" class="search-input" id="search-input" placeholder="Entré une ligne ou un arrêt">
+            <div class="filters">
+                <input type="number" name="distance" id="filter-distance" max="150" step="5" class="km-suf">
+            </div>
+            <div class="results" id="results" hidden>
+                <div class="result" hidden>
+                    <div class="left-anchor">
+                        <img src="../icon/map-pin.svg" alt="" class="search-icon" >
+                        <div class="search-text">
+                            <p class="search-name">
+                                711 716 713 702 719 762 760
+                            </p>
+                            <p class="search-details">
+                                711 716 713 702 719 762 760
+                            </p>
+                        </div>
+                    </div>
+                    <div class="right-anchor">
+                        <div class="search-icons">
+                            <img src="../icon/wheelchair.svg" alt="" class="search-chair icons" hidden>
+                            <img src="../icon/bicycle.svg" alt="" class="search-bike icons" hidden>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="map"></div>
+
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+        }
+
+        .ui {
+            position: fixed;
+            z-index: 10;
+            align-items: center;
+            width: 100%;
+
+        }
+
+        #map {
+            position: fixed;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+
+        }
+
+        .leaflet-control-zoom {
+            display: none;
+        }
+    </style>
+    <script src="./script/map.js"></script>
+
+</body>
+
+</html>
