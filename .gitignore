@@ -1,5 +1,4 @@
-/node_modules/
-/.prettierrc
-/package-lock.json
-/UniJSON/
-/gtfs-to-unijson/temp/
+node_modules/
+.prettierrc
+package-lock.json
+UniJSON/

@@ -22,11 +22,7 @@
         <div class="search" id="search">
             <input type="text" class="search-input" id="search-input" placeholder="Entré une ligne ou un arrêt">
             <div class="filters">
-                <div class="filter-distance">
-                    <button class="arrow-btn" id="decrement-distance"><</button>
-                    <div id="filter-distance-value">5 km</div>
-                    <button class="arrow-btn" id="increment-distance">></button>
-                </div>
+                <input type="number" name="distance" id="filter-distance" max="150" step="5" class="km-suf">
             </div>
             <div class="results" id="results" hidden>
                 <div class="result" hidden>

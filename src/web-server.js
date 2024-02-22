@@ -9,42 +9,12 @@ const server = http.createServer(async (req, res) => {
 
     console.log(`Requested URL: ${pathName}`);
 
-
-
-
     if (pathName.startsWith('/app') && !pathName.startsWith("/api")) {
         let filePath = path.join(__dirname, "..", "app", parsedUrl.path.slice(5))
 
-        if (filePath.endsWith(".ico")) {
-            console.log("icon file request: Denied")
-            res.writeHead(404)
-            res.end()
-            return
-        }
 
-        if(pathName == "/app/phone") {
-            const redirectTo = '/app/phone/'
-            console.log(`Redirecting to: ${redirectTo}`);
-            res.writeHead(302, { 'Location': redirectTo });
-            res.end();
-            return
-        }
-
-        if(
-            (
-                !filePath.endsWith("\\") ||  
-                filePath.endsWith("\\")
-            )
-                && 
-            !(
-                filePath.endsWith(".svg") || 
-                filePath.endsWith(".html") ||
-                filePath.endsWith(".css") || 
-                filePath.endsWith(".js")
-            )
-            
-            ) {
-            console.log("[FolderChecker] Requested Folder, So index.html was given: " + filePath)
+        if((!filePath.endsWith("\\") ||  filePath.endsWith("\\")) && !(filePath.endsWith(".svg") || filePath.endsWith(".html") || filePath.endsWith(".css") || filePath.endsWith(".js"))) {
+            console.log("adding index.html to file request: " + filePath)
             filePath = path.join(filePath, "index.html")
         }
 
@@ -56,8 +26,6 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(200)
         }
 
-
-
         console.log(`Requested file: ${filePath}`);
 
         let file
@@ -65,9 +33,7 @@ const server = http.createServer(async (req, res) => {
         try {
             file = await fs.readFileSync(filePath,'utf-8',  (err, data) => {
                 if (err) {
-                    console.log("Error: 404 File not dound")
                     return res.end("404 not found " + err + filePath);
-                    
                 } 
             })
 
@@ -75,8 +41,6 @@ const server = http.createServer(async (req, res) => {
 
         }
         catch (e) {
-            console.log("Error: 500 Internal Server Error")
-
             res.end("500 Internal Server Error");
         }
 
