@@ -11,6 +11,12 @@
       "urls":[
         "https://api.saint-etienne-metropole.fr/stas/api/horraires_tc/GTFS.aspx"
       ]
+    },
+    {
+      "name": "IDFM",
+      "urls":[
+        "https://eu.ftp.opendatasoft.com/stif/GTFS/IDFM-gtfs.zip"
+      ]
     }
   ]
 }

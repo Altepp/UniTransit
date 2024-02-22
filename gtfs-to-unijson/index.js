@@ -1,177 +1,182 @@
-const gtfs = require("./gtfs.json");
-const download = require("file-download");
+const transportData = require("./gtfs.json");
+const fileDownload = require("file-download");
 const unzipper = require("unzipper");
 const { rm, access, readdir, readFile, writeFile } = require("fs").promises;
-const { createReadStream, createWriteStream } = require("fs");
+const { existsSync, createReadStream, createWriteStream } = require("fs");
 const path = require('path');
-const ref = require("./ref.json"); // Ajoute cette ligne pour définir ref
-const { removeInvisibleCharacters } = require('remove-invisible-characters');
+const references = require("./ref.json");
 
+let totalLines = 0;
+const outputPath = path.join(__dirname, "..", "UniJSON");
+const tempDirPath = path.join(__dirname, "temp");
 
-let linesCount = 0
-const UniJSONPath = path.join(__dirname, "..", "UniJSON");
-const tempDir = path.join(__dirname, "temp");
-
-async function main() {
+async function startProcess() {
     try {
-        await cleanupTempDir();
-        await downloadAndProcessFiles();
+        await cleanTempDir();
+        await downloadAndProcess();
     } catch (error) {
         console.error("An error occurred:", error);
     }
 }
 
-async function cleanupTempDir() {
+async function cleanTempDir() {
     try {
-        await rm(tempDir, { recursive: true });
-        console.log("Deleted temp folder from incomplete unijson conversion!");
+        if (await existsSync(tempDirPath)) {
+            await rm(tempDirPath, { recursive: true });
+            console.log("[TempCleaner] Temp Folder succesfully deleted.");
+        } else {
+            console.log("[TempCleaner] No temp folder detected.")
+        }
     } catch (error) {
-        console.error("Error cleaning up temp folder:", error);
+        console.error("[TempCleaner] Error cleaning up temp folder:", error);
     }
 }
 
-async function downloadAndProcessFiles() {
-    const agencies = gtfs.agencies;
-    
-    for (const agency of agencies) {
-        let i = 0;
+async function downloadAndProcess() {
+    const transportAgencies = transportData.agencies;
+
+    for (const agency of transportAgencies) {
+        let fileCount = 0;
 
         for (const url of agency.urls) {
-            i++;
-            await downloadFile(url, i, agency.name);
+            fileCount++;
+            const fileName = agency.name + fileCount + ".zip";
+            const tempOutputDir = path.join(tempDirPath, agency.name);
+            await downloadFile(url, agency.name, fileName, tempOutputDir);
+            await extractAndConvert(tempOutputDir, fileName, outputPath, references);
         }
     }
 }
 
-async function downloadFile(url, index, name) {
+async function downloadFile(url, name, fileName, tempDirOutput) {
     try {
-        console.log("Downloading: " + url);
-        const tempDirOutput = path.join(tempDir, name);
-        const filename = name + index + ".zip";
-        const options = { directory: tempDirOutput, filename: filename };
-
-        await downloadFileAsync(url, options);
-        await unzipAndUniJSONify(tempDirOutput, filename, UniJSONPath, ref);
+        console.log("[Downloader] Downloading " + fileName + " from " + url);
+        const downloadOptions = {
+            directory: tempDirOutput,
+            filename: fileName
+        };
+        await downloadFileAsync(url, downloadOptions);
     } catch (error) {
-        console.error("Error downloading file:", error);
+        console.error("[Downloader] Error downloading", fileName, ":", error);
     }
 }
 
-
 async function downloadFileAsync(url, options) {
     return new Promise((resolve, reject) => {
-        download(url, options, (err) => {
+        fileDownload(url, options, (err) => {
             if (err) {
-                reject(`Cannot download: ${options.filename}`);
+                reject(`[Downloader] Unable to download: ${options.filename}`);
             } else {
-                console.log(`Downloaded successfully: ${options.filename}`);
+                console.log(`[Downloader] Downloaded successfully: ${options.filename}`);
                 resolve();
             }
         });
     });
 }
 
-// ... (le reste de votre code)
-
-async function unzipAndUniJSONify(dir, filename, output) {
+async function extractAndConvert(dir, fileName, output) {
     try {
-        const fileJSON = {};
-        const folder = path.join(dir, filename.split(".")[0]);
-        const filenameShort = filename.split(".")[0];
+        const jsonData = {};
+        const extractedFolder = path.join(dir, fileName.split(".")[0]);
+        const shortFileName = fileName.split(".")[0];
 
-        await createReadStream(path.join(dir, filename))
-            .pipe(unzipper.Extract({ path: folder }))
+        await createReadStream(path.join(dir, fileName))
+            .pipe(
+                unzipper.Extract({
+                    path: extractedFolder
+                })
+            )
             .on('entry', entry => entry.autodrain())
             .promise();
+            
+        console.log('[Unzipper] Extracted: ' + fileName);
 
-        console.log('Extracted: ' + filename);
+        await rm(path.join(dir, fileName));
 
-        await rm(path.join(dir, filename));
+        const filesInDir = await readdir(extractedFolder);
 
-        const files = await readdir(folder);
-
-        for (const file of files) {
-            const filePath = path.join(folder, file);
+        for (const file of filesInDir) {
+            const filePath = path.join(extractedFolder, file);
             const fileType = file.split(".")[0];
 
             const fileContent = await readFile(filePath, 'utf-8');
 
-            console.log("Found " + fileType + " for " + filenameShort);
+            console.log("[DataProcessor] Found " + fileType + " for " + shortFileName);
 
-            await treatFile(fileContent, ref, fileType, path.join(output, filenameShort + ".json"), fileJSON);
+            await processFile(fileContent, references, fileType, path.join(output, shortFileName + ".json"), jsonData);
         }
-        console.log(linesCount, "lines of data treated")
+        console.log("[DataProcessor] ", totalLines, "lines of data treated")
     } catch (error) {
-        console.error("Error in unzipAndUniJSONify:", error);
+        console.error("Error in extractAndConvert:", error);
     }
 
-    cleanupTempDir()
+    cleanTempDir();
 }
 
-async function treatFile(content, ref, type, out, fileJSON) {
+async function processFile(content, references, type, out, jsonData) {
     try {
-        let fileLineTemp = content.split("\r\n");
-        let refContent = ref[type]
+        let lines = content.split("\r\n");
+        
+        let refData = references[type]
 
+        if (!refData) {
+            console.log("[DataProcessor] No reference has been found for the type", type, ", Can't proceed.")
+            return
+        }
 
-        console.log("Found", fileLineTemp.length, "lines in", type);
-        linesCount= linesCount+fileLineTemp.length
-        let fileItem = [];
-        fileLineTemp.forEach(line => {
-            fileItem.push(line.split(","));
+        console.log("[DataProcessor] Found", lines.length, "lines in", type);
+        totalLines += lines.length;
+        let fileData = [];
+        lines.forEach(line => {
+            fileData.push(line.split(","));
         });
 
-        let hasRef = false 
-        fileItem[0].forEach(item => {
-            refContent.forEach(refer => {
-                if (!hasRef) {
-                    if(refer == item){
-                        hasRef = true
-                        console.log("Ref found")
+        let hasReference = false
+
+        fileData[0].forEach(item => {
+            refData.forEach(reference => {
+                if (!hasReference) {
+                    if (reference == item) {
+                        hasReference = true
+                        console.log("[DataProcessor] At least 1 reference is present, no need to add them.")
                     }
                 }
             })
-
-    
         })
-        if(!hasRef) {
-            fileItem.unshift(refContent)
+        if (!hasReference) {
+            fileData.unshift(refData)
 
-            console.log("No ref found")
+            console.log("[DataProcessor] No reference has been found in this file, they have been added, misinterpretation can happen")
         }
 
+        let processedData = [];
 
-        let temp = [];
-
-        for (let i = 1; i < fileItem.length - 1; i++) {
-            let temp2 = {};
-            if (!fileItem[0].length) {
+        for (let i = 1; i < fileData.length - 1; i++) {
+            let temp = {};
+            if (!fileData[0].length) {
                 console.log("Error for", type)
-                console.log(fileItem[0])
+                console.log(fileData[0])
             }
 
-            for (let j = 0; j < fileItem[0].length - 0; j++) {
-                temp2[fileItem[0][j].replace(/[^a-z_]/g, "")] = fileItem[i][j]
+            for (let j = 0; j < fileData[0].length - 0; j++) {
+                temp[fileData[0][j].replace(/[^a-z_]/g, "")] = fileData[i][j]
             }
 
-            temp.push(temp2);
+            processedData.push(temp);
         }
 
-        if (!fileJSON[type]) {
-            fileJSON[type] = [];
+        if (!jsonData[type]) {
+            jsonData[type] = [];
         } else {
             console.log("how")
-
         }
 
-        fileJSON[type] = fileJSON[type].concat(temp);
+        jsonData[type] = jsonData[type].concat(processedData);
 
-        await writeFile(out, JSON.stringify(fileJSON), 'utf-8');
+        await writeFile(out, JSON.stringify(jsonData), 'utf-8');
     } catch (err) {
-        console.log("Error in treatFile:", err);
+        console.log("Error in processFile:", err);
     }
 }
 
-
-
-main();  // Appelle la fonction principale pour démarrer le processus
+startProcess(); // Commence le processus principal
