@@ -1,14 +1,41 @@
 let searchInput
 let baseResult
 let results
+let incDistance
+let decDistance
+let distValue
+try {
 window.onload = () => {
     searchInput = document.getElementById("search-input")
     baseResult = document.getElementsByClassName("result")[0].outerHTML
     results = document.getElementById("results")
+
+    incDistance = document.getElementById("increment-distance")
+    decDistance = document.getElementById("decrement-distance")
+
+    distValue = document.getElementById("filter-distance-value")
+
     searchInput.addEventListener("input", (ev) => {
 
         search(ev)
 
+    })
+
+    incDistance.addEventListener("click", ev => {
+
+        if (parseInt(distValue.innerHTML) < 100) {
+            distValue.innerHTML = (parseInt(distValue.innerHTML) + 5) + " km"
+
+        }
+    })
+
+
+    decDistance.addEventListener("click", ev => {
+
+        if (parseInt(distValue.innerHTML) > 5) {
+            distValue.innerHTML = (parseInt(distValue.innerHTML) - 5) + " km"
+
+        }
     })
 }
 
@@ -25,20 +52,21 @@ function search(ev) {
         results.hidden = false
     }
 
-
-
     var xhr = new XMLHttpRequest();
 
 
     xhr.addEventListener("readystatechange", function () {
         if (this.readyState === 4) {
+            console.log(this.responseText)
             console.log(JSON.parse(this.responseText));
             applySearch(JSON.parse(this.responseText))
+
+            
 
         }
     });
 
-    xhr.open("GET", "http://localhost:3000/api/lines/search?search=" + searchValue + "&type=" + "stops" + "&lat=" + map.getCenter().lat + "&lng=" + map.getCenter().lng + "&dist=" + 5000);
+    xhr.open("GET", "/api/lines/search?search=" + searchValue + "&type=" + "stops" + "&lat=" + map.getCenter().lat + "&lng=" + map.getCenter().lng + "&dist=" + 5000);
     xhr.setRequestHeader("yo", "mec");
 
     xhr.send();
@@ -97,7 +125,7 @@ function applySearch(json) {
 
     for (let i = 0; i < json.stops.length; i++) {
 
-        results.innerHTML =  results.innerHTML + baseResult
+        results.innerHTML = results.innerHTML + baseResult
 
 
         let title = document.getElementsByClassName("search-name")[i]
@@ -108,18 +136,24 @@ function applySearch(json) {
         resultI.hidden = true
         let wheelChairBoarding = document.getElementsByClassName("search-chair")[i]
         if (json.stops[i].wheelchair_boarding == "0" || "") {
-            wheelChairBoarding.src  = "../icon/unknow-wheelchair.svg"
+            wheelChairBoarding.src = "../icon/unknow-wheelchair.svg"
             wheelChairBoarding.hidden = false
-        } else if (json.stops[i].wheelchair_boarding == "1" ){
-            wheelChairBoarding.src  = "../icon/wheelchair.svg"
+        } else if (json.stops[i].wheelchair_boarding == "1") {
+            wheelChairBoarding.src = "../icon/wheelchair.svg"
             wheelChairBoarding.hidden = false
 
-        } else if (json.stops[i].wheelchair_boarding == "2" ){
-            wheelChairBoarding.src  = "../icon/no-wheelchair.svg"
+        } else if (json.stops[i].wheelchair_boarding == "2") {
+            wheelChairBoarding.src = "../icon/no-wheelchair.svg"
             wheelChairBoarding.hidden = false
 
 
         }
     }
 
+}
+
+
+
+} catch(e) {
+    alert("ERROR: " + e)
 }
